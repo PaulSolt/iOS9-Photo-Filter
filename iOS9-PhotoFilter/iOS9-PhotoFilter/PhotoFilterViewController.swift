@@ -8,7 +8,11 @@ class PhotoFilterViewController: UIViewController {
 	private let context = CIContext(options: nil)
 	private let filter = CIFilter(name: "CIColorControls")!
 	
-	var originalImage: UIImage?
+	var originalImage: UIImage? {
+		didSet {
+			updateImage()
+		}
+	}
 	
 	// Outlets
 	@IBOutlet var brightnessSlider: UISlider!
@@ -29,6 +33,9 @@ class PhotoFilterViewController: UIViewController {
 	@IBAction func choosePhotoButtonPressed(_ sender: Any) {
 		// TODO: show the photo picker so we can choose on-device photos
 		// UIImagePickerController + Delegate
+		
+		presentImagePickerController()
+		
 	}
 	
 	@IBAction func savePhotoButtonPressed(_ sender: UIButton) {
@@ -85,6 +92,45 @@ private func filterImage(_ image: UIImage) -> UIImage? {
 		}
 	}
 	
+	private func presentImagePickerController() {
+
+		guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) else {
+			NSLog("The photo library is not available")
+			return
+		}
+
+		let imagePicker = UIImagePickerController()
+		imagePicker.sourceType = .photoLibrary
+		imagePicker.delegate = self
+
+		present(imagePicker, animated: true, completion: nil)
+	}
+	
+}
+
+extension PhotoFilterViewController: UIImagePickerControllerDelegate {
+	
+	func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+		
+		picker.dismiss(animated: true)
+	}
+	
+	func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+		
+		// get the image
+		if let image = info[.originalImage] as? UIImage {
+			originalImage = image
+		}
+		
+		// TODO: resize the image when we grab it
+		
+		
+		picker.dismiss(animated: true)
+	}
+	
+}
+
+extension PhotoFilterViewController: UINavigationControllerDelegate {
 	
 }
 
