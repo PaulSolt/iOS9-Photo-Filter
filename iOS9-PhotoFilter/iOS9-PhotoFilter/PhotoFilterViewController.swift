@@ -58,16 +58,26 @@ class PhotoFilterViewController: UIViewController {
 	
 	// Clean Code + Clean Coder
 	
-	private func filterImage(_ image: UIImage) -> UIImage? {
-		let ciImage = originalImage?.ciImage
-		
-		// set the filter
-		
-		
-		// render the image
-		
-		return nil
-	}
+private func filterImage(_ image: UIImage) -> UIImage? {
+//		let ciImage = originalImage?.ciImage // NIL: must use initializer instead
+	
+	guard let cgImage = image.cgImage else { return nil }
+	let ciImage = CIImage(cgImage: cgImage)
+	
+	// set up the filter
+	filter.setValue(ciImage, forKey: "inputImage")
+//		filter.setValue(NSNumber(value: 1.5), forKey: "inputSaturation")
+	filter.setValue(saturationSlider.value, forKey: "inputSaturation") // 1.5 is wrapped under the hood as a NSNumber
+	filter.setValue(brightnessSlider.value, forKey: "inputBrightness")
+	filter.setValue(contrastSlider.value, forKey: "inputContrast")
+	
+	guard let outputCIImage = filter.outputImage else { return nil }
+	
+	// render the image
+	guard let outputCGImage = context.createCGImage(outputCIImage, from: CGRect(origin: CGPoint.zero, size: image.size)) else { return nil }
+	
+	return UIImage(cgImage: outputCGImage)
+}
 	
 	private func updateImage() {
 		if let image = originalImage {
