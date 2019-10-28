@@ -10,6 +10,20 @@ class PhotoFilterViewController: UIViewController {
 	
 	var originalImage: UIImage? {
 		didSet {
+			guard let image = originalImage else { return }
+			
+			var scaledSize = imageView.bounds.size // gets the physical number of pixels on screen
+			
+			// 1x 2x 3x
+			let scale = UIScreen.main.scale
+			
+			scaledSize = CGSize(width: scaledSize.width * scale, height: scaledSize.height * scale)
+			scaledImage = image.imageByScaling(toSize: scaledSize)
+		}
+	}
+
+	var scaledImage: UIImage? {
+		didSet {
 			updateImage()
 		}
 	}
@@ -87,7 +101,7 @@ private func filterImage(_ image: UIImage) -> UIImage? {
 }
 	
 	private func updateImage() {
-		if let image = originalImage {
+		if let image = scaledImage {
 			imageView.image = filterImage(image)
 		}
 	}
